@@ -1,3 +1,5 @@
+ifeq ($(call my-dir),$(call project-path-for,qcom-audio)/msm7x30)
+
 ifneq ($(BUILD_TINY_ANDROID),true)
 ifeq ($(strip $(TARGET_USES_QCOM_MM_AUDIO)),true)
 
@@ -98,3 +100,5 @@ include $(BUILD_SHARED_LIBRARY)
 
 endif # TARGET_USES_QCOM_MM_AUDIO
 endif # not BUILD_TINY_ANDROID
+
+endif
