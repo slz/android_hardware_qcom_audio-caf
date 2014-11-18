@@ -1,4 +1,4 @@
-ifeq ($(call my-dir),$(call project-path-for,qcom-audio)/msm7x30)
+ifeq ($(call my-dir),$(call project-path-for,qcom-audio))
 
 ifneq ($(BUILD_TINY_ANDROID),true)
 ifeq ($(TARGET_BOARD_PLATFORM),msm7x30)
