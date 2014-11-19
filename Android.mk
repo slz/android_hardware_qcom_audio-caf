@@ -88,7 +88,7 @@ LOCAL_ADDITIONAL_DEPENDENCIES := $(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr
 
 include $(BUILD_SHARED_LIBRARY)
 
-
+ifeq ($(USE_LEGACY_AUDIO_POLICY), 1)
 include $(CLEAR_VARS)
 
 LOCAL_CFLAGS += $(common_cflags)
@@ -113,7 +113,7 @@ LOCAL_SHARED_LIBRARIES := \
 LOCAL_C_INCLUDES += hardware/libhardware_legacy/audio
 
 include $(BUILD_SHARED_LIBRARY)
-
+endif
 
 endif # TARGET_BOARD_PLATFORM
 endif # not BUILD_TINY_ANDROID
