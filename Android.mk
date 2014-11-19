@@ -9,16 +9,16 @@ ifeq ($(TARGET_BOARD_PLATFORM),msm7x30)
 LOCAL_PATH := $(call my-dir)
 
 common_cflags := -D_POSIX_SOURCE
-ifneq ($(strip $(QCOM_ANC_HEADSET_ENABLED)),false)
+ifeq ($(strip $(QCOM_ANC_HEADSET_ENABLED)),true)
     common_cflags += -DQCOM_ANC_HEADSET_ENABLED
 endif
 ifeq ($(strip $(BOARD_HAVE_QCOM_FM)),true)
     common_cflags += -DQCOM_FM_ENABLED
 endif
-ifneq ($(strip $(QCOM_PROXY_DEVICE_ENABLED)),false)
+ifeq ($(strip $(QCOM_PROXY_DEVICE_ENABLED)),true)
     common_cflags += -DQCOM_PROXY_DEVICE_ENABLED
 endif
-ifneq ($(strip $(QCOM_OUTPUT_FLAGS_ENABLED)),false)
+ifeq ($(strip $(QCOM_OUTPUT_FLAGS_ENABLED)),true)
     common_cflags += -DQCOM_OUTPUT_FLAGS_ENABLED
 endif
 
