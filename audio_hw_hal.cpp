@@ -1,8 +1,7 @@
 /*
  * Copyright (C) 2011 The Android Open Source Project
- * Copyright (c) 2012-2013, The Linux Foundation. All rights reserved.
- * Not a Contribution, Apache license notifications and license are retained
- * for attribution purposes only.
+ * Copyright (c) 2011-2013, The Linux Foundation. All rights reserved.
+ * Not a Contribution.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,7 +67,7 @@ static int out_set_sample_rate(struct audio_stream *stream, uint32_t rate)
     struct qcom_stream_out *out =
         reinterpret_cast<struct qcom_stream_out *>(stream);
 
-    ALOGE("(%s:%d) %s: Implement me!", __FILE__, __LINE__, __func__);
+    ALOGV("(%s:%d) %s: Implement me!", __FILE__, __LINE__, __func__);
     /* TODO: implement this */
     return 0;
 }
@@ -84,7 +83,7 @@ static audio_channel_mask_t out_get_channels(const struct audio_stream *stream)
 {
     const struct qcom_stream_out *out =
         reinterpret_cast<const struct qcom_stream_out *>(stream);
-    return (audio_channel_mask_t) out->qcom_out->channels();
+    return out->qcom_out->channels();
 }
 
 static audio_format_t out_get_format(const struct audio_stream *stream)
@@ -98,7 +97,7 @@ static int out_set_format(struct audio_stream *stream, audio_format_t format)
 {
     struct qcom_stream_out *out =
         reinterpret_cast<struct qcom_stream_out *>(stream);
-    ALOGE("(%s:%d) %s: Implement me!", __FILE__, __LINE__, __func__);
+    ALOGV("(%s:%d) %s: Implement me!", __FILE__, __LINE__, __func__);
     /* TODO: implement me */
     return 0;
 }
@@ -131,6 +130,7 @@ static int out_set_parameters(struct audio_stream *stream, const char *kvpairs)
         parms.addInt(String8(AUDIO_PARAMETER_STREAM_ROUTING), val);
         s8 = parms.toString();
     }
+
     return out->qcom_out->setParameters(s8);
 }
 
@@ -140,13 +140,16 @@ static char * out_get_parameters(const struct audio_stream *stream, const char *
         reinterpret_cast<const struct qcom_stream_out *>(stream);
     String8 s8;
     int val;
+
     s8 = out->qcom_out->getParameters(String8(keys));
+
     AudioParameter parms = AudioParameter(s8);
     if (parms.getInt(String8(AUDIO_PARAMETER_STREAM_ROUTING), val) == NO_ERROR) {
         parms.remove(String8(AUDIO_PARAMETER_STREAM_ROUTING));
         parms.addInt(String8(AUDIO_PARAMETER_STREAM_ROUTING), val);
         s8 = parms.toString();
     }
+
     return strdup(s8.string());
 }
 
@@ -189,6 +192,7 @@ static int out_set_observer(const struct audio_stream_out *stream,
         reinterpret_cast<const struct qcom_stream_out *>(stream);
     return out->qcom_out->setObserver(observer);
 }
+
 static int out_get_buffer_info(const struct audio_stream_out *stream,
                                    buf_info ** buf)
 {
@@ -264,7 +268,7 @@ static int in_set_sample_rate(struct audio_stream *stream, uint32_t rate)
     struct qcom_stream_in *in =
         reinterpret_cast<struct qcom_stream_in *>(stream);
 
-    ALOGE("(%s:%d) %s: Implement me!", __FILE__, __LINE__, __func__);
+    ALOGV("(%s:%d) %s: Implement me!", __FILE__, __LINE__, __func__);
     /* TODO: implement this */
     return 0;
 }
@@ -280,7 +284,7 @@ static audio_channel_mask_t in_get_channels(const struct audio_stream *stream)
 {
     const struct qcom_stream_in *in =
         reinterpret_cast<const struct qcom_stream_in *>(stream);
-    return (audio_channel_mask_t) in->qcom_in->channels();
+    return in->qcom_in->channels();
 }
 
 static audio_format_t in_get_format(const struct audio_stream *stream)
@@ -294,7 +298,7 @@ static int in_set_format(struct audio_stream *stream, audio_format_t format)
 {
     struct qcom_stream_in *in =
         reinterpret_cast<struct qcom_stream_in *>(stream);
-    ALOGE("(%s:%d) %s: Implement me!", __FILE__, __LINE__, __func__);
+    ALOGV("(%s:%d) %s: Implement me!", __FILE__, __LINE__, __func__);
     /* TODO: implement me */
     return 0;
 }
@@ -326,6 +330,7 @@ static int in_set_parameters(struct audio_stream *stream, const char *kvpairs)
         parms.addInt(String8(AUDIO_PARAMETER_STREAM_ROUTING), val);
         s8 = parms.toString();
     }
+
     return in->qcom_in->setParameters(s8);
 }
 
@@ -336,13 +341,16 @@ static char * in_get_parameters(const struct audio_stream *stream,
         reinterpret_cast<const struct qcom_stream_in *>(stream);
     String8 s8;
     int val;
+
     s8 = in->qcom_in->getParameters(String8(keys));
+
     AudioParameter parms = AudioParameter(s8);
     if (parms.getInt(String8(AUDIO_PARAMETER_STREAM_ROUTING), val) == NO_ERROR) {
         parms.remove(String8(AUDIO_PARAMETER_STREAM_ROUTING));
         parms.addInt(String8(AUDIO_PARAMETER_STREAM_ROUTING), val);
         s8 = parms.toString();
     }
+
     return strdup(s8.string());
 }
 
@@ -395,11 +403,11 @@ static inline const struct qcom_audio_device * to_cladev(const struct audio_hw_d
 
 static uint32_t adev_get_supported_devices(const struct audio_hw_device *dev)
 {
-/* XXX: The old AudioHardwareInterface interface is not smart enough to
- * tell us this, so we'll lie and basically tell AF that we support the
- * below input/output devices and cross our fingers. To do things properly,
- * audio hardware interfaces that need advanced features (like this) should
- * convert to the new HAL interface and not use this wrapper. */
+    /* XXX: The old AudioHardwareInterface interface is not smart enough to
+     * tell us this, so we'll lie and basically tell AF that we support the
+     * below input/output devices and cross our fingers. To do things properly,
+     * audio hardware interfaces that need advanced features (like this) should
+     * convert to the new HAL interface and not use this wrapper. */
     return (/* OUT */
             AUDIO_DEVICE_OUT_EARPIECE |
             AUDIO_DEVICE_OUT_SPEAKER |
@@ -468,6 +476,7 @@ static int adev_set_master_volume(struct audio_hw_device *dev, float volume)
     struct qcom_audio_device *qadev = to_ladev(dev);
     return qadev->hwif->setMasterVolume(volume);
 }
+
 static int adev_get_master_volume(struct audio_hw_device *dev, float *volume) {
 
     struct qcom_audio_device *qadev = to_ladev(dev);
@@ -477,7 +486,7 @@ static int adev_get_master_volume(struct audio_hw_device *dev, float *volume) {
 static int adev_set_mode(struct audio_hw_device *dev, audio_mode_t mode)
 {
     struct qcom_audio_device *qadev = to_ladev(dev);
-    return qadev->hwif->setMode((int)mode);
+    return qadev->hwif->setMode(mode);
 }
 
 static int adev_set_mic_mute(struct audio_hw_device *dev, bool state)
@@ -513,16 +522,16 @@ static size_t adev_get_input_buffer_size(const struct audio_hw_device *dev,
 {
     const struct qcom_audio_device *qadev = to_cladev(dev);
     uint8_t channelCount = popcount(config->channel_mask);
-    return qadev->hwif->getInputBufferSize(config->sample_rate,config->format,channelCount);
+    return qadev->hwif->getInputBufferSize(config->sample_rate, config->format, channelCount);
 }
-
 
 static int adev_open_output_stream(struct audio_hw_device *dev,
                                    audio_io_handle_t handle,
                                    audio_devices_t devices,
                                    audio_output_flags_t flags,
                                    struct audio_config *config,
-                                   struct audio_stream_out **stream_out)
+                                   struct audio_stream_out **stream_out,
+                                   const char * address __unused)
 {
     struct qcom_audio_device *qadev = to_ladev(dev);
     status_t status;
@@ -535,7 +544,8 @@ static int adev_open_output_stream(struct audio_hw_device *dev,
 
     status = static_cast<audio_output_flags_t> (flags);
 
-    out->qcom_out = qadev->hwif->openOutputStream(devices, (int *) &config->format,
+    out->qcom_out = qadev->hwif->openOutputStream(devices,
+                                                    (int *)&config->format,
                                                     &config->channel_mask,
                                                     &config->sample_rate,
                                                     &status);
@@ -592,8 +602,10 @@ static void adev_close_output_stream(struct audio_hw_device *dev,
 static int adev_open_input_stream(struct audio_hw_device *dev,
                                   audio_io_handle_t handle,
                                   audio_devices_t devices,
-                                  struct audio_config *config,
-                                  struct audio_stream_in **stream_in)
+                                  audio_config *config,
+                                  audio_stream_in **stream_in, audio_input_flags_t flags,
+                                  const char * address __unused,
+                                  audio_source_t source __unused)
 {
     struct qcom_audio_device *qadev = to_ladev(dev);
     status_t status;
