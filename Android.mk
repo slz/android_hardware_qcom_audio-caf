@@ -9,7 +9,7 @@ ifeq ($(TARGET_BOARD_PLATFORM),msm7x30)
 LOCAL_PATH := $(call my-dir)
 
 common_cflags := -D_POSIX_SOURCE
-ifeq ($(strip $(BOARD_HAVE_QCOM_FM)),true)
+ifeq ($(strip $(AUDIO_FEATURE_ENABLED_FM)),true)
     common_cflags += -DQCOM_FM_ENABLED
 endif
 ifeq ($(strip $(QCOM_PROXY_DEVICE_ENABLED)),true)
