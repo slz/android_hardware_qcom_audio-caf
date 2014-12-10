@@ -425,10 +425,6 @@ static uint32_t adev_get_supported_devices(const struct audio_hw_device *dev)
             AUDIO_DEVICE_OUT_USB_ACCESSORY |
             AUDIO_DEVICE_OUT_USB_DEVICE |
             AUDIO_DEVICE_OUT_REMOTE_SUBMIX |
-#ifdef QCOM_ANC_HEADSET_ENABLED
-            AUDIO_DEVICE_OUT_ANC_HEADSET |
-            AUDIO_DEVICE_OUT_ANC_HEADPHONE |
-#endif
 #ifdef QCOM_FM_ENABLED
             AUDIO_DEVICE_OUT_FM |
             AUDIO_DEVICE_OUT_FM_TX |
@@ -448,9 +444,6 @@ static uint32_t adev_get_supported_devices(const struct audio_hw_device *dev)
             AUDIO_DEVICE_IN_DGTL_DOCK_HEADSET |
             AUDIO_DEVICE_IN_USB_ACCESSORY |
             AUDIO_DEVICE_IN_USB_DEVICE |
-#ifdef QCOM_ANC_HEADSET_ENABLED
-            AUDIO_DEVICE_IN_ANC_HEADSET |
-#endif
 #ifdef QCOM_FM_ENABLED
             AUDIO_DEVICE_IN_FM_RX |
             AUDIO_DEVICE_IN_FM_RX_A2DP |
