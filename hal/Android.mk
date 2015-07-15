@@ -33,17 +33,17 @@ ifeq ($(TARGET_BOARD_PLATFORM),msm8960)
   endif
 endif
 
+ifneq ($(filter msm8916,$(TARGET_BOARD_PLATFORM)),)
+  AUDIO_PLATFORM = msm8916
+  MULTIPLE_HW_VARIANTS_ENABLED := true
+  LOCAL_CFLAGS := -DPLATFORM_MSM8916
+endif
+
 LOCAL_SRC_FILES := \
 	audio_hw.c \
 	voice.c \
 	platform_info.c \
 	$(AUDIO_PLATFORM)/platform.c
-
-ifneq ($(BOARD_USES_CUSTOM_AUDIO_PLATFORM_PATH),)
-    LOCAL_SRC_FILES += ../../../../$(BOARD_USES_CUSTOM_AUDIO_PLATFORM_PATH)/customplatform.c
-else
-    LOCAL_SRC_FILES += vendor-platform/customplatform.c
-endif
 
 LOCAL_SRC_FILES += audio_extn/audio_extn.c
 
@@ -69,6 +69,10 @@ ifneq ($(strip $(AUDIO_FEATURE_DISABLED_HFP)),true)
     LOCAL_SRC_FILES += audio_extn/hfp.c
 endif
 
+ifneq ($(strip $(AUDIO_FEATURE_DISABLED_CUSTOMSTEREO)),true)
+    LOCAL_CFLAGS += -DCUSTOM_STEREO_ENABLED
+endif
+
 ifeq ($(strip $(AUDIO_FEATURE_ENABLED_SSR)),true)
     LOCAL_CFLAGS += -DSSR_ENABLED
     LOCAL_SRC_FILES += audio_extn/ssr.c
@@ -86,7 +90,7 @@ ifneq ($(strip $(AUDIO_FEATURE_DISABLED_INCALL_MUSIC)),true)
 endif
 endif
 
-ifneq ($(filter msm8974 msm8226 msm8610,$(TARGET_BOARD_PLATFORM)),)
+ifneq ($(filter msm8974 msm8226 msm8610 msm8916,$(TARGET_BOARD_PLATFORM)),)
 ifneq ($(strip $(AUDIO_FEATURE_DISABLED_COMPRESS_VOIP)),true)
 
     LOCAL_CFLAGS += -DCOMPRESS_VOIP_ENABLED
@@ -108,14 +112,14 @@ ifdef MULTIPLE_HW_VARIANTS_ENABLED
   LOCAL_SRC_FILES += $(AUDIO_PLATFORM)/hw_info.c
 endif
 
-ifneq ($(filter msm8974 msm8226 msm8610,$(TARGET_BOARD_PLATFORM)),)
+ifneq ($(filter msm8974 msm8226 msm8610 msm8916,$(TARGET_BOARD_PLATFORM)),)
 ifneq ($(strip $(AUDIO_FEATURE_DISABLED_COMPRESS_CAPTURE)),true)
     LOCAL_CFLAGS += -DCOMPRESS_CAPTURE_ENABLED
     LOCAL_SRC_FILES += audio_extn/compress_capture.c
 endif
 endif
 
-ifneq ($(filter msm8974 msm8226 msm8610,$(TARGET_BOARD_PLATFORM)),)
+ifneq ($(filter msm8974 msm8226 msm8610 msm8916,$(TARGET_BOARD_PLATFORM)),)
 ifneq ($(strip $(AUDIO_FEATURE_DISABLED_DS1_DOLBY_DDP)),true)
     LOCAL_CFLAGS += -DDS1_DOLBY_DDP_ENABLED
     LOCAL_C_INCLUDES += $(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr/include
@@ -124,13 +128,7 @@ ifneq ($(strip $(AUDIO_FEATURE_DISABLED_DS1_DOLBY_DDP)),true)
 endif
 endif
 
-ifneq ($(filter msm8974 msm8226 msm8610,$(TARGET_BOARD_PLATFORM)),)
-ifeq ($(strip $(AUDIO_FEATURE_SEPARATE_SPKR_BACKEND)),true)
-    LOCAL_CFLAGS += -DSEPARATE_SPKR_BACKEND
-endif
-endif
-
-ifneq ($(filter msm8974 msm8226 msm8610,$(TARGET_BOARD_PLATFORM)),)
+ifneq ($(filter msm8974 msm8226 msm8610 msm8916,$(TARGET_BOARD_PLATFORM)),)
 ifneq ($(strip $(AUDIO_FEATURE_DISABLED_WMA_OFFLOAD_DISABLED)),true)
     LOCAL_CFLAGS += -DWMA_OFFLOAD_ENABLED
     LOCAL_C_INCLUDES += $(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr/include
@@ -138,7 +136,7 @@ ifneq ($(strip $(AUDIO_FEATURE_DISABLED_WMA_OFFLOAD_DISABLED)),true)
 endif
 endif
 
-ifneq ($(filter msm8974 msm8226 msm8610,$(TARGET_BOARD_PLATFORM)),)
+ifneq ($(filter msm8974 msm8226 msm8610 msm8916,$(TARGET_BOARD_PLATFORM)),)
 ifneq ($(strip $(AUDIO_FEATURE_DISABLED_MP2_OFFLOAD)),true)
     LOCAL_CFLAGS += -DMP2_OFFLOAD_ENABLED
     LOCAL_C_INCLUDES += $(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr/include
@@ -148,6 +146,10 @@ endif
 
 ifeq ($(strip $(AUDIO_FEATURE_ENABLED_MULTIPLE_TUNNEL)), true)
     LOCAL_CFLAGS += -DMULTIPLE_OFFLOAD_ENABLED
+endif
+
+ifeq ($(strip $(AUDIO_FEATURE_ENABLED_ULTRA_LOW_LATENCY)), true)
+    LOCAL_CFLAGS += -DULTRA_LOW_LATENCY_ENABLED
 endif
 
 ifeq ($(strip $(AUDIO_FEATURE_ENABLED_FLAC_OFFLOAD)),true)
@@ -167,6 +169,18 @@ LOCAL_SHARED_LIBRARIES := \
 	libdl \
 	libexpat
 
+ifeq ($(strip $(AUDIO_FEATURE_MDM_DETECT)),true)
+    LOCAL_CFLAGS += -DMDM_DETECT
+    LOCAL_SHARED_LIBRARIES += libmdmdetect
+    LOCAL_C_INCLUDES += $(TARGET_OUT_HEADERS)/libmdmdetect/inc
+endif
+
+ifneq ($(BOARD_AUDIO_AMPLIFIER),)
+    LOCAL_CFLAGS += -DUSES_AUDIO_AMPLIFIER
+    LOCAL_SHARED_LIBRARIES += libaudioamp
+    LOCAL_C_INCLUDES += $(BOARD_AUDIO_AMPLIFIER)
+endif
+
 LOCAL_C_INCLUDES += \
 	external/tinyalsa/include \
 	external/tinycompress/include \
@@ -175,8 +189,7 @@ LOCAL_C_INCLUDES += \
 	$(call include-path-for, audio-effects) \
 	$(LOCAL_PATH)/$(AUDIO_PLATFORM) \
 	$(LOCAL_PATH)/audio_extn \
-	$(LOCAL_PATH)/voice_extn \
-	$(LOCAL_PATH)/vendor-platform
+	$(LOCAL_PATH)/voice_extn
 
 ifeq ($(strip $(AUDIO_FEATURE_ENABLED_LISTEN)),true)
     LOCAL_CFLAGS += -DAUDIO_LISTEN_ENABLED

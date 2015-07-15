@@ -66,7 +66,14 @@ int stop_call(struct audio_device *adev, audio_usecase_t usecase_id)
     ALOGD("%s: enter usecase:%s", __func__, use_case_table[usecase_id]);
 
     session = (struct voice_session *)voice_get_session_from_use_case(adev, usecase_id);
+    if (!session) {
+        ALOGE("stop_call: couldn't find voice session");
+        return -EINVAL;
+    }
+
     session->state.current = CALL_INACTIVE;
+    if (adev->mode == AUDIO_MODE_NORMAL)
+        adev->voice.is_in_call = false;
 
     ret = platform_stop_voice_call(adev->platform, session->vsid);
 
@@ -106,13 +113,24 @@ int start_call(struct audio_device *adev, audio_usecase_t usecase_id)
     int i, ret = 0;
     struct audio_usecase *uc_info;
     int pcm_dev_rx_id, pcm_dev_tx_id;
+    uint32_t sample_rate = 8000;
     struct voice_session *session = NULL;
     struct pcm_config voice_config = pcm_config_voice_call;
 
     ALOGD("%s: enter usecase:%s", __func__, use_case_table[usecase_id]);
 
     session = (struct voice_session *)voice_get_session_from_use_case(adev, usecase_id);
+    if (!session) {
+        ALOGE("start_call: couldn't find voice session");
+        return -EINVAL;
+    }
+
     uc_info = (struct audio_usecase *)calloc(1, sizeof(struct audio_usecase));
+    if (!uc_info) {
+        ALOGE("start_call: couldn't allocate mem for audio_usecase");
+        return -ENOMEM;
+    }
+
     uc_info->id = usecase_id;
     uc_info->type = VOICE_CALL;
     uc_info->stream.out = adev->primary_output;
@@ -133,6 +151,13 @@ int start_call(struct audio_device *adev, audio_usecase_t usecase_id)
         ret = -EIO;
         goto error_start_voice;
     }
+    ret = platform_get_sample_rate(adev->platform, &sample_rate);
+    if (ret < 0) {
+        ALOGE("platform_get_sample_rate error %d\n", ret);
+    } else {
+        voice_config.rate = sample_rate;
+    }
+    ALOGD("voice_config.rate %d\n", voice_config.rate);
 
     ALOGV("%s: Opening PCM playback device card_id(%d) device_id(%d)",
           __func__, adev->snd_card, pcm_dev_rx_id);
